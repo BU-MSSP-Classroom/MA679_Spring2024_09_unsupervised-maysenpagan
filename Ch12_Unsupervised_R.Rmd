@@ -126,9 +126,10 @@ Do EDA and find patterns in the data. Notice that this data is multivariate, wit
 ```{r}
 library(reshape2)
 library(ggplot2)
-Pokemon2 <- Pokemon[,-2]
-rownames(Pokemon2) <- Pokemon[,2]
-cormat <- round(cor(Pokemon),2)
+Pokemon2 <- Pokemon
+Pokemon2 <- Pokemon2[,6:11]
+rownames(Pokemon2) <- Pokemon$Name
+cormat <- round(cor(Pokemon2),2)
 head(cormat)
 melted_cormat <- melt(cormat)
 ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
@@ -151,23 +152,23 @@ Your task is to group the Pokemon into some meaningful clusters that makes sense
 ```{r}
 require(graphics)
 
-
-hc <- hclust(dist(Pokemon), "ave")
-plot(hc)
-plot(hc, hang = -1)
-
-
-hc <- hclust(dist(Pokemon)^2, "cen")
-memb <- cutree(hc, k = 10)
-cent <- NULL
-for(k in 1:10){
-  cent <- rbind(cent, colMeans(Pokemon[memb == k, , drop = FALSE]))
-}
-hc1 <- hclust(dist(cent)^2, method = "cen", members = table(memb))
-opar <- par(mfrow = c(1, 2))
-plot(hc,  labels = FALSE, hang = -1, main = "Original Tree")
-plot(hc1, labels = FALSE, hang = -1, main = "Re-start from 10 clusters")
-par(opar)
+# 
+# hc <- hclust(dist(Pokemon2), "ave")
+# plot(hc)
+# plot(hc, hang = -1)
+# 
+# 
+# hc <- hclust(dist(Pokemon2)^2, "cen")
+# memb <- cutree(hc, k = 10)
+# cent <- NULL
+# for(k in 1:10){
+#   cent <- rbind(cent, colMeans(Pokemon2[memb == k, , drop = FALSE]))
+# }
+# hc1 <- hclust(dist(cent)^2, method = "cen", members = table(memb))
+# opar <- par(mfrow = c(1, 2))
+# plot(hc,  labels = FALSE, hang = -1, main = "Original Tree")
+# plot(hc1, labels = FALSE, hang = -1, main = "Re-start from 10 clusters")
+# par(opar)
 
 ### Example 2: Straight-line distances among 10 US cities
 ##  Compare the results of algorithms "ward.D" and "ward.D2"
@@ -182,6 +183,26 @@ par(opar)
 # plot(hcity.D,  hang=-1)
 # plot(hcity.D2, hang=-1)
 # par(opar)
+
+
+
+Pokemon2 <- scale(Pokemon2)
+hc.complete <- hclust(dist(Pokemon2), method = "complete")
+hc.average <- hclust(dist(Pokemon2), method = "average")
+hc.single <- hclust(dist(Pokemon2), method = "single")
+par(mfrow = c(1,3))
+plot(hc.complete, main = "Complete Linkage",
+     xlab = "", sub = "", cex = 0.9)
+plot(hc.average, main = "Average Linkage",
+     xlab = "", sub = "", cex = 0.9)
+plot(hc.single, main = "Single Linkage",
+     xlab = "", sub = "", cex = 0.9)
+
+library(pheatmap)
+library(cluster)
+# gower_samples <- as.dist(as.matrix(daisy(Pokemon[,5:11], metric = "gower")))
+# gower_features <- as.dist(as.matrix(daisy(t(Pokemon[,5:11]), metric = "gower")))
+pheatmap(Pokemon[,5:11])
 ```
 
 Comment of the result:
